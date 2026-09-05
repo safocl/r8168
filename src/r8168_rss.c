@@ -291,11 +291,14 @@ static void rtl8168_store_rss_key(struct rtl8168_private *tp)
 {
         const u16 rss_key_reg = rtl8168_rss_key_reg(tp);
         u32 i, rss_key_size = _rtl8168_get_rxfh_key_size(tp);
-        u32 *rss_key = (u32*)tp->rss_key;
+        u8 *rss_key = tp->rss_key;
 
         /* Write redirection table to HW */
-        for (i = 0; i < rss_key_size; i+=4)
-                rtl8168_eri_write(tp, rss_key_reg + i, 4, *rss_key++, ERIAR_ExGMAC);
+        for (i = 0; i < rss_key_size; i+=4) {
+                u32 v;
+                memcpy(&v, rss_key + i, 4);
+                rtl8168_eri_write(tp, rss_key_reg + i, 4, v, ERIAR_ExGMAC);
+        }
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,8,0)
